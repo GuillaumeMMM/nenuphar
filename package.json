@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/GuillaumeMMM/nenuphar/issues"
   },
-  "homepage": "https://github.com/GuillaumeMMM/nenuphar#readme"
+  "homepage": "https://github.com/GuillaumeMMM/nenuphar#readme",
+  "dependencies": {
+    "@notionhq/client": "^1.0.0"
+  }
 }
