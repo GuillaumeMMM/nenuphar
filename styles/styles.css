@@ -1,0 +1,37 @@
+@import './reset.css';
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+.nen-bold {
+    font-weight: 600;
+}
+
+.nen-italic {
+    font-style: italic;
+}
+
+.nen-underline {
+    text-decoration: underline;
+}
+
+.nen-strikethrough {
+    text-decoration: line-through;
+}
+
+.nen-color-orange {
+    color: orange;
+}
+
+.nen-color-brown_background {
+    background-color: brown;
+}
+
+.nen-code {
+    font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace;
+    background: rgba(135,131,120,0.15);
+    color: #EB5757;
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+}

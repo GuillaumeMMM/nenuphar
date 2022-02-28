@@ -35,8 +35,6 @@ async function main() {
         return pageContent;
     }));
 
-    console.log(blocks[0].results[0].heading_1.text)
-
     generateModule.generate(blocks[0].results);
 
     return 'done.';

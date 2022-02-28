@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/GuillaumeMMM/nenuphar#readme",
   "dependencies": {
-    "@notionhq/client": "^1.0.0"
+    "@notionhq/client": "^1.0.0",
+    "fs-extra": "^10.0.1"
   }
 }
