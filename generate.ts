@@ -1,3 +1,5 @@
+import { ListBlockChildrenResponse } from "@notionhq/client/build/src/api-endpoints";
+
 //  Generate HTML from Notion blocks
 module.exports = {
     generate: generate
@@ -5,30 +7,30 @@ module.exports = {
 
 const fs = require('fs-extra');
 
-const htmlTags = {
+const htmlTags: {[key: string]: string} = {
     'heading_1': 'h1',
     'heading_2': 'h2',
     'heading_3': 'h3',
     'paragraph': 'p',
 }
 
-async function generate(blocks) {
+async function generate(blocks: ListBlockChildrenResponse) {
 
     await generateStyles();
 
     const html = await fs.readFileSync('./index.html', 'utf8');
 
-    const blocksHTML = blocks.map(block => generateHTMLForBlock(block)).join('');
+    const blocksHTML = blocks.results.map(block => generateHTMLForBlock(block)).join('');
 
     const newHtml = html.replace('<main id="root"></main>', `<main id="root">${blocksHTML}</main>`);
 
-    await fs.writeFile('./build/index.html', newHtml, 'utf8', (err) => {
+    await fs.writeFile('./build/index.html', newHtml, 'utf8', (err: any) => {
         if (err) return console.log(err);
         console.log('build done.')
     })
 }
 
-function generateHTMLForBlock(block) {
+function generateHTMLForBlock(block: any) {
     if (htmlTags[block.type] && block[block.type].text) {
         return `
             <${htmlTags[block.type]} ${getClassesForTextBlock(block[block.type].text[0])}>
@@ -52,8 +54,8 @@ async function generateStyles() {
     console.log('styles build done.')
 }
 
-function getClassesForTextBlock(block) {
-    const classes = [];
+function getClassesForTextBlock(block: any) {
+    const classes: string[] = [];
     Object.keys(block?.annotations || {}).forEach(key => {
         if (block?.annotations[key]) {
             if (typeof block?.annotations[key] === 'boolean') {
@@ -68,7 +70,7 @@ function getClassesForTextBlock(block) {
     return classes.length > 0 ? `class="${classes.join(' ')}"` : '';
 }
 
-function embedTag(block, text) {
+function embedTag(block: any, text: string) {
     if (block?.href) {
         return `<a href=${block.href} rel="noopener noreferrer" target="_blank">${text}</a>`
     }
