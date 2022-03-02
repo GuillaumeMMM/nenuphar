@@ -19,8 +19,6 @@ async function main() {
         },
     });
 
-    console.log(allPages.results)
-
     const workspacePage: any = allPages.results.filter(res => res.object === 'page').find((page: any) => !page.archived && page.parent.type === 'workspace');
 
     if (!workspacePage) {
@@ -44,7 +42,7 @@ async function main() {
         return pageContent;
     }));
 
-    generateModule.generate(blocks[0]);
+    generateModule.generate(blocks[0]['results']);
 
     return 'done.';
 }
