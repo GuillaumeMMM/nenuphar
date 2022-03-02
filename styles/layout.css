@@ -1,0 +1,30 @@
+
+.nen-app-container {
+    display: flex;
+    height: 100%;
+    min-height: 100vh;
+}
+
+.nen-sidebar-container {
+    width: 200px;
+    border-right: 1px solid black;
+    min-width: 0px;
+}
+
+main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nen-header-container {
+    padding: 10px;
+    border-bottom: 1px solid black;
+    position: static;
+    position: sticky;
+    top: 0;
+    background-color: lightgreen;
+}
+
+.nen-app-content {
+    padding: 1rem;
+}

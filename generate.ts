@@ -22,7 +22,7 @@ async function generate(blocks: BlockObjectResponse[]) {
 
     const blocksHTML = blocks.map(block => generateHTMLForBlock(block)).join('');
 
-    const newHtml = html.replace('<main id="root"></main>', `<main id="root">${blocksHTML}</main>`);
+    const newHtml = html.replace('<div id="root-content"></div>', `<div id="root-content">${blocksHTML}</div>`);
 
     await fs.writeFile('./build/index.html', newHtml, 'utf8', (err: any) => {
         if (err) return console.log(err);
