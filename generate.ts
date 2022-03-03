@@ -2,7 +2,8 @@ import { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/buil
 
 //  Generate HTML from Notion blocks
 module.exports = {
-    generate: generate
+    generate: generate,
+    generateStyles: generateStyles
 };
 
 const fs = require('fs-extra');
@@ -14,20 +15,13 @@ const htmlTags: {[key: string]: string} = {
     'paragraph': 'p',
 }
 
-async function generate(blocks: BlockObjectResponse[]) {
-
-    await generateStyles();
-
-    const html = await fs.readFileSync('./index.html', 'utf8');
+function generate(html: string, blocks: BlockObjectResponse[]) {
 
     const blocksHTML = blocks.map(block => generateHTMLForBlock(block)).join('');
 
     const newHtml = html.replace('<div id="root-content"></div>', `<div id="root-content">${blocksHTML}</div>`);
 
-    await fs.writeFile('./build/index.html', newHtml, 'utf8', (err: any) => {
-        if (err) return console.log(err);
-        console.log('build done.')
-    });
+    return newHtml;
 }
 
 function generateHTMLForBlock(block: BlockObjectResponse) {

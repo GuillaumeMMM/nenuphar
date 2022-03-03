@@ -1,7 +1,9 @@
 import { Client } from "@notionhq/client";
-import { GetBlockResponse, GetPageResponse, ListBlockChildrenResponse, SearchResponse } from "@notionhq/client/build/src/api-endpoints";
+import { GetPageResponse, ListBlockChildrenResponse, SearchResponse } from "@notionhq/client/build/src/api-endpoints";
 
 const generateModule = require('./generate.ts');
+const componentModule = require('./components.ts');
+const fs = require('fs-extra');
 
 async function main() {
     const token = process.env.NOTION_TOKEN;
@@ -42,7 +44,20 @@ async function main() {
         return pageContent;
     }));
 
-    generateModule.generate(blocks[0]['results']);
+    await generateModule.generateStyles();
+
+    let html = await fs.readFileSync('./index.html', 'utf8');
+
+    html = generateModule.generate(html, blocks[0]['results']);
+
+    html = await componentModule.buildComponents(html);
+
+    console.log(html)
+
+    await fs.writeFile('./build/index.html', html, 'utf8', (err: any) => {
+        if (err) return console.log(err);
+        console.log('build done.', html);
+    });
 
     return 'done.';
 }
