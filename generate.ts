@@ -47,7 +47,7 @@ function generateHTMLForBlockElement(type: string, blockElement: any) {
 }
 
 async function generateStyles() {
-    const source = "./styles";
+    const source = "./src/styles";
     const destination = "./build/styles";
     const tmp = `tmp-${Date.now()}`;
 

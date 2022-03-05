@@ -52,8 +52,6 @@ async function main() {
 
     html = await componentModule.buildComponents(html);
 
-    console.log(html)
-
     await fs.writeFile('./build/index.html', html, 'utf8', (err: any) => {
         if (err) return console.log(err);
         console.log('build done.', html);
