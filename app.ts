@@ -1,9 +1,11 @@
 import { Client } from "@notionhq/client";
-import { GetPageResponse, ListBlockChildrenResponse, SearchResponse } from "@notionhq/client/build/src/api-endpoints";
+import { BlockObjectResponse, GetPageResponse, ListBlockChildrenResponse, PartialBlockObjectResponse, SearchResponse } from "@notionhq/client/build/src/api-endpoints";
 
 const generateModule = require('./generate.ts');
 const componentModule = require('./components.ts');
 const fs = require('fs-extra');
+
+const config = require('./nen-config.json');
 
 async function main() {
     const token = process.env.NOTION_TOKEN;
@@ -38,30 +40,40 @@ async function main() {
 
     console.log('Pages : ', pagesPageBlocks.results.filter((block: any) => block.type === 'child_page').map((page: any) => page.child_page?.title));
 
+    const pages = pagesPageBlocks.results.filter((block: any) => block.type === 'child_page');
 
-    const blocks: ListBlockChildrenResponse[] = await Promise.all(pagesPageBlocks.results.filter((block: any) => block.type === 'child_page').map(async function(pageBlock) {
-        const pageContent = await getChildrenBlocks(notion, pageBlock.id);
-        return pageContent;
-    }));
+    for (let page of pages) {
+        const pageName: string = ((page as any)?.child_page?.title || 'unknown').toLowerCase();
+        await buildPage(notion, page, pageName);
+    }
+
+    if (config.home) {
+        await buildPage(notion, pages.find((page: any) => page?.child_page?.title === config.home) as any, 'index');
+    }
 
     await generateModule.generateStyles();
-
-    let html = await fs.readFileSync('./index.html', 'utf8');
-
-    html = generateModule.generate(html, blocks[0]['results']);
-
-    html = await componentModule.buildComponents(html);
-
-    await fs.writeFile('./build/index.html', html, 'utf8', (err: any) => {
-        if (err) return console.log(err);
-        console.log('build done.', html);
-    });
-
+    
     return 'done.';
 }
 
 async function getChildrenBlocks(notion: Client, pageId: string): Promise<ListBlockChildrenResponse> {
     return notion.blocks.children.list({block_id: pageId})
+}
+
+async function buildPage(notion: Client, page: PartialBlockObjectResponse | BlockObjectResponse, pageName: string) {
+
+    let html = await fs.readFileSync(`./index.html`, 'utf8');
+    
+    const pageContent = await getChildrenBlocks(notion, page.id);
+
+    html = generateModule.generate(html, pageContent['results']);
+
+    html = await componentModule.buildComponents(html);
+
+    await fs.writeFile(`./build/${pageName}.html`, html, 'utf8', (err: any) => {
+        if (err) return console.log(err);
+        console.log(`${pageName}.html build done.`);
+    });
 }
 
 main()

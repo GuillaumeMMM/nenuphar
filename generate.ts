@@ -19,7 +19,7 @@ function generate(html: string, blocks: BlockObjectResponse[]) {
 
     const blocksHTML = blocks.map(block => generateHTMLForBlock(block)).join('');
 
-    const newHtml = html.replace('<div id="root-content"></div>', `<div id="root-content">${blocksHTML}</div>`);
+    const newHtml = html.replace('<nen-content></nen-content>', `<nen-content>${blocksHTML}</nen-content>`);
 
     return newHtml;
 }
