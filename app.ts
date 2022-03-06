@@ -42,6 +42,19 @@ async function main() {
 
     const pages = pagesPageBlocks.results.filter((block: any) => block.type === 'child_page');
 
+    generateApp(notion, pages);
+    
+    return 'done.';
+}
+
+async function generateApp(notion: Client, pages: (PartialBlockObjectResponse | BlockObjectResponse)[]) {
+
+    //  Delete build folder
+    await fs.rmSync('./build', { recursive: true, force: true });
+
+    //  Recreate build
+    await fs.mkdir('./build');
+
     for (let page of pages) {
         const pageName: string = ((page as any)?.child_page?.title || 'unknown').toLowerCase();
         await buildPage(notion, page, pageName);
@@ -52,8 +65,6 @@ async function main() {
     }
 
     await generateModule.generateStyles();
-    
-    return 'done.';
 }
 
 async function getChildrenBlocks(notion: Client, pageId: string): Promise<ListBlockChildrenResponse> {
