@@ -5,7 +5,7 @@ const generateModule = require('./generate.ts');
 const componentModule = require('./components.ts');
 const fs = require('fs-extra');
 
-const config = require('./nen-config.json');
+const config = require('../nen-config.json');
 
 async function main() {
     const token = process.env.NOTION_TOKEN;
