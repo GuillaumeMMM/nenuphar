@@ -5,22 +5,15 @@ module.exports = {
     buildComponents: buildComponents
 };
 
-async function buildComponents(indexHtml: string): Promise<string> {
-    let newIndexHtml = indexHtml;
+async function buildComponents(): Promise<any[]> {
+    let components: any[] = [];
 
     const files: string[] = await fs.readdir('./src/components');
-
-    const htmlFiles: string[] = (files || []).filter(file => file.endsWith('.html')).map(file => file.split('.html')[0]);
-
+    const htmlFiles: string[] = (files || []).filter(file => file.endsWith('.html'));
     for(const htmlFile of htmlFiles) {
-        newIndexHtml = await buildComponent(htmlFile, newIndexHtml);
+        let htmlContent = await fs.readFileSync(`./src/components/${htmlFile}`, 'utf8');
+        components = components.concat({id: `nen-${htmlFile.split('.html')[0]}`, tag: `nen-${htmlFile.split('.html')[0]}`, template: htmlContent})
     }
 
-    return newIndexHtml;
-}
-
-async function buildComponent(fileName: string, indexHtml: string): Promise<string> {
-    const fileHtml = fs.readFileSync(`./src/components/${fileName}.html`, 'utf8');
-    console.log('build ', fileName + '.html');
-    return (indexHtml || '').replace(`<nen-${fileName}></nen-${fileName}>`, fileHtml);
+    return components;
 }

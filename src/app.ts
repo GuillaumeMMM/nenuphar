@@ -58,7 +58,7 @@ async function generateApp(notion: Client, pages: (PartialBlockObjectResponse | 
     //  Recreate build
     await fs.mkdir('./build');
 
-    const components = await buildComponentsArray();
+    const components = await componentModule.buildComponents();
 
     for (let page of pages) {
         const pageName: string = ((page as any)?.child_page?.title || 'unknown').toLowerCase();
@@ -91,24 +91,10 @@ async function buildPage(notion: Client, page: PartialBlockObjectResponse | Bloc
 
     const html = nymphea.generateHTML(componentsTmp, 'nen-root');
 
-    if (pageName === 'contact') {
-        console.log(componentsTmp)
-    }
-
     await fs.writeFile(`./build/${pageName}.html`, html, 'utf8', (err: any) => {
         if (err) return console.log(err);
         console.log(`${pageName}.html build done.`);
     });
-}
-
-async function buildComponentsArray() {
-    let htmlHeader = await fs.readFileSync(`./src/components/header.html`, 'utf8');
-    let htmlSidebar = await fs.readFileSync(`./src/components/sidebar.html`, 'utf8');
-
-    return [
-        {id: 'nen-header', tag: 'nen-header', template: htmlHeader},
-        {id: 'nen-sidebar', tag: 'nen-sidebar', template: htmlSidebar},
-    ];
 }
 
 main()
