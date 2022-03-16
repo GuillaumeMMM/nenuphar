@@ -15,13 +15,11 @@ const htmlTags: {[key: string]: string} = {
     'paragraph': 'p',
 }
 
-function generate(html: string, blocks: BlockObjectResponse[]) {
+function generate(blocks: BlockObjectResponse[]) {
 
     const blocksHTML = blocks.map(block => generateHTMLForBlock(block)).join('');
 
-    const newHtml = html.replace('<nen-content></nen-content>', `<nen-content>${blocksHTML}</nen-content>`);
-
-    return newHtml;
+    return blocksHTML;
 }
 
 function generateHTMLForBlock(block: BlockObjectResponse) {

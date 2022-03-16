@@ -3,7 +3,10 @@ import { BlockObjectResponse, GetPageResponse, ListBlockChildrenResponse, Partia
 
 const generateModule = require('./generate.ts');
 const componentModule = require('./components.ts');
+const pagesModule = require('./pages.ts');
 const fs = require('fs-extra');
+
+const nymphea = require('nymphea');
 
 const config = require('../nen-config.json');
 
@@ -30,19 +33,19 @@ async function main() {
         return;
     }
 
-    const mainPagecontent: GetPageResponse = await notion.pages.retrieve({ page_id: workspacePage.id });
+    const mainPageContent: GetPageResponse = await notion.pages.retrieve({ page_id: workspacePage.id });
     
-    const mainBlocks: ListBlockChildrenResponse = await notion.blocks.children.list({block_id: mainPagecontent.id});
+    const mainBlocks: ListBlockChildrenResponse = await notion.blocks.children.list({block_id: mainPageContent.id});
 
     const pagesChild: any = mainBlocks.results.find((block: any) => block.child_page?.title === 'Pages');
 
     const pagesPageBlocks: ListBlockChildrenResponse = await getChildrenBlocks(notion, pagesChild.id);
 
-    console.log('Pages : ', pagesPageBlocks.results.filter((block: any) => block.type === 'child_page').map((page: any) => page.child_page?.title));
+    console.log(pagesModule.buildPagesTree(pagesPageBlocks.results.filter((block: any) => block.type === 'child_page')));
 
     const pages = pagesPageBlocks.results.filter((block: any) => block.type === 'child_page');
 
-    generateApp(notion, pages);
+    await generateApp(notion, pages);
     
     return 'done.';
 }
@@ -55,13 +58,15 @@ async function generateApp(notion: Client, pages: (PartialBlockObjectResponse | 
     //  Recreate build
     await fs.mkdir('./build');
 
+    const components = await buildComponentsArray();
+
     for (let page of pages) {
         const pageName: string = ((page as any)?.child_page?.title || 'unknown').toLowerCase();
-        await buildPage(notion, page, pageName);
+        await buildPage(notion, page, pageName, components);
     }
 
     if (config.home) {
-        await buildPage(notion, pages.find((page: any) => page?.child_page?.title === config.home) as any, 'index');
+        await buildPage(notion, pages.find((page: any) => page?.child_page?.title === config.home) as any, 'index', components);
     }
 
     await generateModule.generateStyles();
@@ -71,20 +76,39 @@ async function getChildrenBlocks(notion: Client, pageId: string): Promise<ListBl
     return notion.blocks.children.list({block_id: pageId})
 }
 
-async function buildPage(notion: Client, page: PartialBlockObjectResponse | BlockObjectResponse, pageName: string) {
+async function buildPage(notion: Client, page: PartialBlockObjectResponse | BlockObjectResponse, pageName: string, components: any[]) {
+    const componentsTmp = components.concat([]);
 
-    let html = await fs.readFileSync(`./index.html`, 'utf8');
+    let rootHtml = await fs.readFileSync(`./index.html`, 'utf8');
+
+    componentsTmp.push({id: 'nen-root', tag: 'nen-root', template: rootHtml});
     
     const pageContent = await getChildrenBlocks(notion, page.id);
 
-    html = generateModule.generate(html, pageContent['results']);
+    const contentHtml = generateModule.generate(pageContent['results']);
 
-    html = await componentModule.buildComponents(html);
+    componentsTmp.push({id: 'nen-content', tag: 'nen-content', template: contentHtml});
+
+    const html = nymphea.generateHTML(componentsTmp, 'nen-root');
+
+    if (pageName === 'contact') {
+        console.log(componentsTmp)
+    }
 
     await fs.writeFile(`./build/${pageName}.html`, html, 'utf8', (err: any) => {
         if (err) return console.log(err);
         console.log(`${pageName}.html build done.`);
     });
+}
+
+async function buildComponentsArray() {
+    let htmlHeader = await fs.readFileSync(`./src/components/header.html`, 'utf8');
+    let htmlSidebar = await fs.readFileSync(`./src/components/sidebar.html`, 'utf8');
+
+    return [
+        {id: 'nen-header', tag: 'nen-header', template: htmlHeader},
+        {id: 'nen-sidebar', tag: 'nen-sidebar', template: htmlSidebar},
+    ];
 }
 
 main()
